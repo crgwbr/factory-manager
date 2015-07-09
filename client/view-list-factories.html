@@ -1,0 +1,34 @@
+<div class="row">
+    <div class="col-sm-12">
+        <h1>All Factories</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <table class="table">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Tags</th>
+                <th></th>
+            </tr>
+            {% for factory in factories.models %}
+                <tr>
+                    <td>{{ factory.get('name') }}</td>
+                    <td>{{ factory.get('email') }}</td>
+                    <td>{{ factory.get('address') }}</td>
+                    <td>
+                        {% for tag in factory.get('tags') %}
+                            <span class="label label-info">{{ tag }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a class="btn btn-default" href="#factories/edit/{{ factory.id }}">Edit</a>
+                        <a class="btn btn-danger delete" data-id="{{ factory.id }}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
