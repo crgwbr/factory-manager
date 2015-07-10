@@ -1,0 +1,54 @@
+---
+
+- name: Install ruby-dev
+  apt: name=ruby-dev state=present
+  sudo: yes
+- name: Install bundler
+  gem: name=bundler state=present user_install=no
+  sudo: yes
+
+- name: Create Root App Directory
+  command: mkdir -p {{ app_path }}
+  sudo: yes
+  args:
+    creates: "{{ app_path }}"
+- name: Sync Source Code
+  command: rsync -r /vagrant/ {{ app_path }}/
+  sudo: yes
+
+- name: Create Logs Directory
+  command: mkdir -p {{ app_path }}/tmp/logs
+  sudo: yes
+  args:
+    creates: "{{ app_path }}/tmp/logs"
+- name: Create PID Directory
+  command: mkdir -p {{ app_path }}/tmp/pid
+  sudo: yes
+  args:
+    creates: "{{ app_path }}/tmp/pid"
+- name: Create Sockets Directory
+  command: mkdir -p {{ app_path }}/tmp/sockets
+  sudo: yes
+  args:
+    creates: "{{ app_path }}/tmp/sockets"
+
+- name: Install SQLLite Dev Headers
+  apt: name=libsqlite3-dev state=present
+  sudo: yes
+- name: Install GCC
+  apt: name=build-essential state=present
+  sudo: yes
+
+- name: Install Dependancies
+  command: bundler install
+  args:
+    chdir: "{{ app_path }}"
+
+- name: Install Unicorn
+  gem: name=unicorn state=present user_install=no
+  sudo: yes
+- name: Start Unicorn
+  command: unicorn -D -c ./unicorn.rb
+  sudo: yes
+  args:
+    chdir: "{{ app_path }}"

@@ -1,0 +1,12 @@
+---
+- hosts: all
+  vars:
+    app_path: /var/www/factory-manager/current
+    app_name: factory-manager
+  roles:
+    - role: factory-manager
+    - role: agios.nginx-unicorn
+      sudo: yes
+      nginx_sites:
+        - name: "{{ app_name }}"
+          server_name: '~^(.+)$'
