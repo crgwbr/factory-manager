@@ -35,6 +35,25 @@
             email: '',
             address: '',
             tags: []
+        },
+
+        geocode: function() {
+            if (!this.get('address')) {
+                return $.Deferred().reject();
+            }
+
+            var params = {
+                q: this.get('address'),
+                format: 'json'
+            };
+
+            return $.getJSON('http://nominatim.openstreetmap.org/search', params).then(function(results) {
+                var res = _.first(results);
+                if (!res) {
+                    return null;
+                }
+                return _.pick(res, 'lat', 'lon');
+            });
         }
     });
 
@@ -118,6 +137,32 @@
                     factories: self.factories
                 });
                 self.$el.html(html);
+                self.drawMap(self.factories);
+            });
+        },
+
+        drawMap: function(factories) {
+            var map;
+
+            map = new google.maps.Map(this.$el.find('.map').get(0), {
+                zoom: 4,
+                center: new google.maps.LatLng(39.833333, -98.583333) // Geo center of US
+            });
+
+            factories.map(function(factory) {
+                return factory.geocode().then(function(res) {
+                    if (!res) {
+                        return;
+                    }
+
+                    var point = new google.maps.LatLng(res.lat, res.lon);
+
+                    return new google.maps.Marker({
+                        position: point,
+                        map: map,
+                        title: factory.get('name')
+                    });
+                });
             });
         }
     });
